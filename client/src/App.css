@@ -20,6 +20,8 @@
 .auth-popover input { border: 1px solid #dfe7df; border-radius: 6px; padding: 9px; color: #14231f; font-size: 12px; }
 .auth-submit { border: 0; border-radius: 6px; padding: 9px; background: #237b55; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
 .auth-submit:disabled { cursor: wait; opacity: .65; }
+.google-button { display: flex; justify-content: center; align-items: center; gap: 7px; border: 1px solid #dfe7df; border-radius: 6px; padding: 8px; background: #fff; color: #14231f; font-size: 12px; font-weight: 700; cursor: pointer; }
+.google-button span { color: #4285f4; font: 700 14px Georgia, serif; }
 .auth-switch { border: 0; background: transparent; color: #237b55; font-size: 11px; cursor: pointer; }
 .auth-error { color: #b24f3d; font-size: 11px; }
 .eyebrow { color: #237b55; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 700; display: block; margin-bottom: 9px; }

@@ -12,8 +12,11 @@ const userSchema = new mongoose.Schema(
       match: /^[a-z0-9._-]+$/,
       unique: true,
     },
+    email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
     displayName: { type: String, required: true, trim: true, maxlength: 120 },
-    passwordHash: { type: String, required: true, select: false },
+    passwordHash: { type: String, select: false },
+    authProvider: { type: String, enum: ['password', 'google'], default: 'password', index: true },
+    providerId: { type: String, unique: true, sparse: true, select: false },
   },
   { timestamps: true },
 )
