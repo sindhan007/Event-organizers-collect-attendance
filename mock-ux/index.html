@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gatherwell | Event intelligence mock UX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+    :root { --ink:#14231f; --muted:#6b7771; --line:#dfe7df; --paper:#f6f7f2; --panel:#fff; --mint:#b9e8cf; --green:#237b55; --amber:#f5c66d; --coral:#ec7b65; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:'DM Sans',sans-serif; }
+    button { font:inherit; cursor:pointer; }
+    .app { display:grid; grid-template-columns:244px 1fr; min-height:100vh; }
+    aside { padding:28px 20px; background:#16342b; color:#eaf6ed; display:flex; flex-direction:column; }
+    .brand { display:flex; gap:10px; align-items:center; font-family:'Space Grotesk'; font-weight:700; font-size:20px; margin:0 10px 52px; }
+    .mark { width:28px; height:28px; border-radius:8px 8px 8px 2px; background:var(--mint); position:relative; }
+    .mark:after { content:''; width:9px; height:9px; border-radius:50%; background:#16342b; position:absolute; right:6px; top:6px; }
+    nav { display:grid; gap:7px; }
+    .nav-item { border:0; color:#b9cec2; background:transparent; padding:12px 13px; border-radius:9px; text-align:left; display:flex; gap:12px; align-items:center; font-size:14px; }
+    .nav-item:hover,.nav-item.active { color:#16342b; background:var(--mint); }
+    .nav-icon { width:20px; text-align:center; font-size:16px; }
+    .side-note { margin-top:auto; padding:16px; background:#25483b; border-radius:12px; font-size:12px; line-height:1.55; color:#c6ddd0; }
+    .side-note strong { display:block; color:#fff; font-size:14px; margin-bottom:5px; }
+    main { padding:30px 42px 60px; max-width:1420px; width:100%; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:36px; }
+    .crumb { color:var(--muted); font-size:13px; }
+    .profile { display:flex; gap:12px; align-items:center; font-size:13px; font-weight:600; }
+    .avatar { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:#f0bb83; color:#563719; font-weight:700; }
+    .eyebrow { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-size:11px; font-weight:700; margin-bottom:9px; }
+    h1,h2,h3 { font-family:'Space Grotesk',sans-serif; margin:0; letter-spacing:-.03em; }
+    h1 { font-size:34px; line-height:1.1; max-width:650px; }
+    h2 { font-size:21px; }
+    h3 { font-size:16px; }
+    .intro { display:flex; justify-content:space-between; align-items:end; gap:20px; margin-bottom:27px; }
+    .intro p { color:var(--muted); margin:10px 0 0; font-size:14px; }
+    .select { border:1px solid var(--line); background:white; padding:10px 13px; border-radius:8px; color:var(--ink); }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:25px; }
+    .metric { padding:18px; border:1px solid var(--line); background:var(--panel); border-radius:10px; }
+    .metric .label { color:var(--muted); font-size:12px; }
+    .metric strong { display:block; font-family:'Space Grotesk'; font-size:29px; margin:8px 0 5px; }
+    .delta { color:var(--green); font-size:12px; font-weight:600; }
+    .layout { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(270px,.9fr); gap:18px; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:21px; }
+    .panel-head { display:flex; justify-content:space-between; align-items:start; gap:10px; margin-bottom:20px; }
+    .panel-head p { color:var(--muted); margin:5px 0 0; font-size:12px; }
+    .link-btn { border:0; color:var(--green); background:transparent; font-size:12px; font-weight:700; padding:4px; }
+    .bar-chart { height:194px; display:flex; align-items:end; gap:12px; border-bottom:1px solid var(--line); padding:0 8px; }
+    .bar-wrap { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:end; gap:7px; }
+    .bar { width:100%; max-width:40px; background:var(--mint); border-radius:5px 5px 0 0; min-height:20px; transition:height .25s ease; }
+    .bar:nth-child(2n) { background:#79cba3; }
+    .bar-wrap span { color:var(--muted); font-size:11px; }
+    .score { display:flex; align-items:center; gap:18px; padding:15px 0 8px; }
+    .score-ring { width:94px; height:94px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(var(--green) 0 82%, #e8eee8 82%); position:relative; }
+    .score-ring:after { content:''; width:70px; height:70px; border-radius:50%; background:white; position:absolute; }
+    .score-ring strong { position:relative; z-index:1; font-family:'Space Grotesk'; font-size:24px; }
+    .score-copy strong { font-family:'Space Grotesk'; font-size:16px; display:block; margin-bottom:5px; }
+    .score-copy span { color:var(--muted); font-size:12px; line-height:1.4; display:block; }
+    .progress { height:7px; background:#ebf0eb; border-radius:8px; overflow:hidden; margin:13px 0 7px; }
+    .progress i { display:block; height:100%; background:var(--green); border-radius:inherit; }
+    .progress-label { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+    .events { margin-top:18px; }
+    .event { display:grid; grid-template-columns:52px 1fr auto; gap:13px; align-items:center; padding:13px 0; border-top:1px solid var(--line); }
+    .event-date { background:#eef6ef; border-radius:8px; padding:8px 5px; text-align:center; color:var(--green); font-size:10px; font-weight:700; }
+    .event-date strong { display:block; font:700 19px 'Space Grotesk'; }
+    .event-title { font-weight:700; font-size:13px; }
+    .event-meta { color:var(--muted); font-size:11px; margin-top:4px; }
+    .tag { padding:5px 8px; border-radius:99px; font-size:10px; font-weight:700; background:#fff3d4; color:#946313; }
+    .tag.live { background:#dff4e7; color:var(--green); }
+    .view { display:none; animation:rise .35s ease both; }
+    .view.active { display:block; }
+    @keyframes rise { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+    .journey { margin-top:18px; background:#f4efe4; border:1px solid #e8dfce; padding:17px 19px; border-radius:10px; }
+    .journey strong { font-size:13px; }
+    .journey p { color:#756e61; font-size:12px; margin:5px 0 0; line-height:1.5; }
+    .journey button { margin-top:12px; border:0; background:var(--ink); color:#fff; border-radius:7px; padding:9px 12px; font-size:12px; font-weight:700; }
+    .table { width:100%; border-collapse:collapse; font-size:13px; }
+    .table th,.table td { text-align:left; padding:14px 8px; border-bottom:1px solid var(--line); }
+    .table th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+    .feedback-card { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .quote { border-left:3px solid var(--amber); padding:3px 0 3px 15px; color:#53605a; line-height:1.6; font-size:14px; }
+    .quote small { display:block; color:var(--muted); margin-top:8px; font-size:11px; }
+    @media (max-width:850px) { .app { display:block; } aside { padding:16px; } .brand { margin:0 0 16px; } nav { display:flex; overflow:auto; } .nav-item { white-space:nowrap; } .side-note { display:none; } main { padding:24px 18px 45px; } .metrics { grid-template-columns:repeat(2,1fr); } .layout,.feedback-card { grid-template-columns:1fr; } .intro { align-items:start; flex-direction:column; } }
+    @media (max-width:480px) { h1 { font-size:28px; } .metrics { gap:8px; } .metric { padding:13px; } .metric strong { font-size:23px; } .bar-chart { gap:4px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand"><span class="mark"></span> gatherwell</div>
+      <nav aria-label="Primary navigation">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">◒</span> Overview</button>
+        <button class="nav-item" data-view="events"><span class="nav-icon">▣</span> Events</button>
+        <button class="nav-item" data-view="feedback"><span class="nav-icon">✦</span> Feedback</button>
+        <button class="nav-item" data-view="planning"><span class="nav-icon">↗</span> Planning</button>
+      </nav>
+      <div class="side-note"><strong>Make the next one matter.</strong> Turn attendance and attendee sentiment into a clear action plan for your next event.</div>
+    </aside>
+    <main>
+      <div class="topbar"><span class="crumb">Workspace / Event intelligence</span><div class="profile"><span>Alex Morgan</span><span class="avatar">AM</span></div></div>
+      <section class="view active" id="overview">
+        <div class="intro"><div><div class="eyebrow">Monday, 14 October</div><h1>Your events, with the full story.</h1><p>See who showed up, what resonated, and what to do next.</p></div><select class="select" aria-label="Select event"><option>All events · 2024</option><option>Product Forum · Sep 24</option><option>Community Breakfast · Aug 12</option></select></div>
+        <div class="metrics"><div class="metric"><span class="label">Engagement score</span><strong>82<span style="font-size:16px">/100</span></strong><span class="delta">↑ 14% vs last event</span></div><div class="metric"><span class="label">Attendance rate</span><strong>78%</strong><span class="delta">↑ 6% vs last event</span></div><div class="metric"><span class="label">Feedback collected</span><strong>64%</strong><span class="delta">↑ 21% vs last event</span></div><div class="metric"><span class="label">Return intent</span><strong>91%</strong><span class="delta">↑ 8% vs last event</span></div></div>
+        <div class="layout"><div class="panel"><div class="panel-head"><div><h2>Engagement over time</h2><p>Registrations compared with attendees</p></div><button class="link-btn">Last 6 events ↗</button></div><div class="bar-chart" aria-label="Engagement chart"><div class="bar-wrap"><div class="bar" style="height:44%"></div><span>May</span></div><div class="bar-wrap"><div class="bar" style="height:60%"></div><span>Jun</span></div><div class="bar-wrap"><div class="bar" style="height:51%"></div><span>Jul</span></div><div class="bar-wrap"><div class="bar" style="height:74%"></div><span>Aug</span></div><div class="bar-wrap"><div class="bar" style="height:68%"></div><span>Sep</span></div><div class="bar-wrap"><div class="bar" style="height:88%"></div><span>Oct</span></div></div></div><div class="panel"><div class="panel-head"><div><h2>Event health</h2><p>Product Forum · September 24</p></div><span class="tag live">Strong</span></div><div class="score"><div class="score-ring"><strong>82</strong></div><div class="score-copy"><strong>Above your average</strong><span>Strong attendance and positive sentiment carried the score.</span></div></div><div class="progress"><i style="width:78%"></i></div><div class="progress-label"><span>Attendance</span><b>78%</b></div><div class="progress"><i style="width:64%;background:var(--amber)"></i></div><div class="progress-label"><span>Feedback coverage</span><b>64%</b></div><div class="journey"><strong>One action to improve</strong><p>Send the follow-up survey within 24 hours to lift response rate.</p><button data-view="planning">Open action plan →</button></div></div></div>
+        <div class="panel events"><div class="panel-head"><div><h2>Recent events</h2><p>A quick pulse on your latest work</p></div><button class="link-btn" data-view="events">View all events →</button></div><div class="event"><div class="event-date"><strong>24</strong>SEP</div><div><div class="event-title">Product Forum</div><div class="event-meta">248 attendees · 64% feedback</div></div><span class="tag live">82 score</span></div><div class="event"><div class="event-date"><strong>12</strong>AUG</div><div><div class="event-title">Community Breakfast</div><div class="event-meta">86 attendees · 43% feedback</div></div><span class="tag">71 score</span></div></div>
+      </section>
+      <section class="view" id="events"><div class="intro"><div><div class="eyebrow">Event library</div><h1>Every event has a next move.</h1><p>Compare the moments that shaped your audience's experience.</p></div><button class="journey" style="border:0;background:var(--ink);color:#fff;padding:11px 15px;margin:0;font-weight:700">+ Add event</button></div><div class="panel"><table class="table"><thead><tr><th>Event</th><th>Date</th><th>Attendance</th><th>Feedback</th><th>Score</th></tr></thead><tbody><tr><td><strong>Product Forum</strong><br><span style="color:var(--muted);font-size:11px">Customer education</span></td><td>Sep 24, 2024</td><td>78%</td><td>64%</td><td><span class="tag live">82 · Strong</span></td></tr><tr><td><strong>Community Breakfast</strong><br><span style="color:var(--muted);font-size:11px">Community</span></td><td>Aug 12, 2024</td><td>72%</td><td>43%</td><td><span class="tag">71 · Good</span></td></tr><tr><td><strong>Partner Roundtable</strong><br><span style="color:var(--muted);font-size:11px">Partners</span></td><td>Jun 05, 2024</td><td>91%</td><td>81%</td><td><span class="tag live">89 · Strong</span></td></tr></tbody></table></div></section>
+      <section class="view" id="feedback"><div class="intro"><div><div class="eyebrow">Voice of the room</div><h1>Feedback that points somewhere.</h1><p>Spot what attendees valued and where the experience can move forward.</p></div><select class="select"><option>Product Forum · Sep 24</option><option>All events</option></select></div><div class="layout"><div class="panel"><div class="panel-head"><div><h2>What attendees said</h2><p>64% response rate · 159 responses</p></div><button class="link-btn">Export CSV ↗</button></div><div class="feedback-card"><div><div class="quote">“The practical sessions gave our team something we could use the very next day.”<small>Attendee · Customer education</small></div><br><div class="quote" style="border-color:var(--green)">“Loved meeting other teams. More time for peer discussion would make this even better.”<small>Attendee · Networking</small></div></div><div><h3>Top themes</h3><div class="progress"><i style="width:86%"></i></div><div class="progress-label"><span>Practical content</span><b>86%</b></div><div class="progress"><i style="width:73%;background:var(--amber)"></i></div><div class="progress-label"><span>Networking</span><b>73%</b></div><div class="progress"><i style="width:42%;background:var(--coral)"></i></div><div class="progress-label"><span>Session pacing</span><b>42%</b></div></div></div></div><div class="panel"><h2>Sentiment</h2><p style="color:var(--muted);font-size:12px">Across all written responses</p><div style="font:700 52px 'Space Grotesk';margin:21px 0 2px">+0.74</div><span class="delta">Positive sentiment</span><div class="journey"><strong>Insight ready</strong><p>Attendees want more peer discussion. Add a 20-minute roundtable to the next agenda.</p></div></div></div></section>
+      <section class="view" id="planning"><div class="intro"><div><div class="eyebrow">Plan with evidence</div><h1>Turn insight into the next brief.</h1><p>Carry your strongest signals into the decisions that shape the next event.</p></div><button class="journey" style="border:0;background:var(--green);color:white;padding:11px 15px;margin:0;font-weight:700">Share plan ↗</button></div><div class="panel"><div class="panel-head"><div><h2>Recommended action plan</h2><p>Built from Product Forum feedback and engagement patterns</p></div><span class="tag live">3 actions</span></div><div class="event"><div class="event-date" style="background:#fff3d4;color:#946313">01</div><div><div class="event-title">Add a peer discussion block</div><div class="event-meta">Audience asked for more networking time · Owner: Alex</div></div><span class="tag">Next event</span></div><div class="event"><div class="event-date" style="background:#fde8e3;color:#b24f3d">02</div><div><div class="event-title">Send survey within 24 hours</div><div class="event-meta">Fast follow-up can improve feedback coverage by 12%</div></div><span class="tag live">High impact</span></div><div class="event"><div class="event-date">03</div><div><div class="event-title">Repeat practical workshop format</div><div class="event-meta">Highest-rated session · 94% found it useful</div></div><span class="tag">Content</span></div></div></section>
+    </main>
+  </div>
+  <script>
+    const buttons = document.querySelectorAll('[data-view]');
+    const views = document.querySelectorAll('.view');
+    function showView(name) {
+      views.forEach(view => view.classList.toggle('active', view.id === name));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.view === name));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    buttons.forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
+  </script>
+</body>
+</html>
