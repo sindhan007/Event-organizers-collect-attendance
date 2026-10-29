@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AuthPanel } from './components/AuthPanel.jsx'
+import { uploadEventData } from './lib/api.js'
 import './App.css'
 
 const navigation = [
@@ -135,6 +136,9 @@ function EventsView() {
   const [editingEvent, setEditingEvent] = useState(null)
   const [draftTitle, setDraftTitle] = useState('')
   const [pendingDelete, setPendingDelete] = useState(null)
+  const [uploadFile, setUploadFile] = useState(null)
+  const [uploadMessage, setUploadMessage] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   function startEditing(event) {
     setEditingEvent(event)
@@ -154,6 +158,23 @@ function EventsView() {
     setPendingDelete(null)
   }
 
+  async function handleUpload(event) {
+    event.preventDefault()
+    if (!uploadFile) return
+    setUploading(true)
+    setUploadMessage('')
+    try {
+      const result = await uploadEventData(events[0].id, uploadFile)
+      setUploadMessage(`${result.rows} rows imported successfully.`)
+      setUploadFile(null)
+      event.target.reset()
+    } catch (error) {
+      setUploadMessage(error.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="secondary-view events-view">
       <div className="page-intro"><div><span className="eyebrow">Event library</span><h1>Every event has a next move.</h1><p>Update event details or remove an event from your planning workspace.</p></div><button className="primary-button" type="button">+ Add event</button></div>
@@ -171,6 +192,11 @@ function EventsView() {
           ))}
         </div>
       </div>
+      <form className="panel upload-panel" onSubmit={handleUpload}>
+        <div><span className="eyebrow">Data import</span><h2>Upload attendance and feedback</h2><p>Import a CSV with <code>email</code>, <code>name</code>, and optional <code>checkedIn</code>, <code>rating</code>, <code>comment</code>, and <code>returnIntent</code> columns.</p></div>
+        <div className="upload-controls"><input accept=".csv,text/csv" aria-label="CSV data file" onChange={(event) => setUploadFile(event.target.files[0] || null)} type="file" /><button className="primary-button" disabled={!uploadFile || uploading} type="submit">{uploading ? 'Uploading...' : 'Upload CSV'}</button></div>
+        {uploadMessage && <span className="upload-message" role="status">{uploadMessage}</span>}
+      </form>
     </div>
   )
 }

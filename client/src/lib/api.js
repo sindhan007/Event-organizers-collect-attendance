@@ -46,3 +46,15 @@ export async function register(username, password, displayName) {
 export function getCurrentUser() {
   return request('/api/auth/me').then((payload) => payload.user)
 }
+
+export async function uploadEventData(eventId, file) {
+  const headers = new Headers()
+  const token = getAccessToken()
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await fetch(`${API_URL}/api/events/${eventId}/upload`, { method: 'POST', headers, body: formData })
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(payload.message || 'Upload failed')
+  return payload
+}

@@ -87,5 +87,13 @@ select { border: 1px solid #dfe7df; background: #fff; padding: 10px 13px; border
 .inline-edit input { width: 100%; border: 1px solid #a6cdb5; border-radius: 5px; padding: 7px; color: #14231f; }
 .delete-confirmation { margin-top: 18px; border: 1px solid #f0c4ba; border-radius: 8px; background: #fff3f0; color: #7b392d; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
 .delete-confirmation div { display: flex; gap: 5px; }
+.upload-panel { margin-top: 18px; display: grid; gap: 16px; }
+.upload-panel h2 { margin-top: 0; }
+.upload-panel p { max-width: 700px; font-size: 12px; line-height: 1.6; }
+.upload-panel code { color: #237b55; font-size: 11px; }
+.upload-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.upload-controls input { max-width: 100%; font-size: 12px; }
+.primary-button:disabled { cursor: not-allowed; opacity: .55; }
+.upload-message { color: #237b55; font-size: 12px; font-weight: 600; }
 @media (max-width: 850px) { .app-shell { display: block; } .sidebar { padding: 16px; } .brand { margin: 0 0 16px; } .sidebar nav { display: flex; overflow: auto; } .nav-item { white-space: nowrap; } .sidebar-note { display: none; } .main-content { padding: 24px 18px 45px; } .metrics { grid-template-columns: repeat(2, 1fr); } .dashboard-grid { grid-template-columns: 1fr; } .page-intro { align-items: start; flex-direction: column; } .delete-confirmation { align-items: start; flex-direction: column; } }
 @media (max-width: 480px) { h1 { font-size: 28px; } .metrics { gap: 8px; } .metric-card { padding: 13px; } .metric-card strong { font-size: 23px; } .bar-chart { gap: 4px; } }
