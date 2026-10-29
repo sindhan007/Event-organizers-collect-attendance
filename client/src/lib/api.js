@@ -58,3 +58,10 @@ export async function uploadEventData(eventId, file) {
   if (!response.ok) throw new Error(payload.message || 'Upload failed')
   return payload
 }
+
+export async function autocompleteText(field, context) {
+  return request('/api/ai/autocomplete', {
+    method: 'POST',
+    body: JSON.stringify({ field, context }),
+  })
+}

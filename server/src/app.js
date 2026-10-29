@@ -4,6 +4,7 @@ import { parse } from 'csv-parse/sync'
 import mongoose from 'mongoose'
 import multer from 'multer'
 import { Attendee, Event, Feedback, User } from '../models/index.js'
+import { completeText, isAiConfigured } from './ai.js'
 import { createAuthToken, publicUser, requireAuth } from './auth.js'
 import { exchangeGoogleCode, getGoogleAuthorizationUrl, isGoogleAuthConfigured } from './googleAuth.js'
 
@@ -96,6 +97,19 @@ app.get('/api/auth/me', requireAuth, async (request, response, next) => {
     const user = await User.findById(request.user.sub).lean()
     if (!user) return response.status(404).json({ message: 'User not found' })
     response.json({ user: publicUser(user) })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.post('/api/ai/autocomplete', requireAuth, async (request, response, next) => {
+  try {
+    if (!isAiConfigured()) return response.status(503).json({ message: 'AI autocomplete is not configured' })
+    const { field = 'description', context } = request.body
+    if (!['title', 'description'].includes(field)) return response.status(400).json({ message: 'Unsupported autocomplete field' })
+    if (!context?.trim()) return response.status(400).json({ message: 'Context is required' })
+    const suggestion = await completeText({ field, context: context.trim().slice(0, 2000) })
+    response.json({ field, suggestion })
   } catch (error) {
     next(error)
   }
