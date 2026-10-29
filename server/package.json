@@ -5,7 +5,8 @@
   "scripts": {
     "check-models": "node --input-type=module -e \"await import('./models/index.js'); console.log('Mongoose models loaded')\"",
     "check-api": "node --input-type=module -e \"const { app } = await import('./src/app.js'); console.log('API routes loaded:', app.router.stack.filter((layer) => layer.route).length)\"",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "vitest run"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -16,5 +17,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.1.5",
     "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }
