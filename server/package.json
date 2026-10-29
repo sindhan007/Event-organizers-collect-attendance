@@ -3,9 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check-models": "node --input-type=module -e \"await import('./models/index.js'); console.log('Mongoose models loaded')\""
+    "check-models": "node --input-type=module -e \"await import('./models/index.js'); console.log('Mongoose models loaded')\"",
+    "check-api": "node --input-type=module -e \"const { app } = await import('./src/app.js'); console.log('API routes loaded:', app.router.stack.filter((layer) => layer.route).length)\"",
+    "start": "node src/server.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "mongoose": "^9.1.5"
   }
 }
