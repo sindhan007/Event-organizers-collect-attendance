@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const TOKEN_KEY = 'gatherwell_access_token'
 
 export function getAccessToken() {
@@ -7,6 +7,10 @@ export function getAccessToken() {
 
 export function clearAccessToken() {
   localStorage.removeItem(TOKEN_KEY)
+}
+
+export function saveAccessToken(token) {
+  localStorage.setItem(TOKEN_KEY, token)
 }
 
 async function request(path, options = {}) {
@@ -26,7 +30,7 @@ export async function login(username, password) {
     method: 'POST',
     body: JSON.stringify({ username, password }),
   })
-  localStorage.setItem(TOKEN_KEY, payload.token)
+  saveAccessToken(payload.token)
   return payload.user
 }
 
@@ -35,7 +39,7 @@ export async function register(username, password, displayName) {
     method: 'POST',
     body: JSON.stringify({ username, password, displayName }),
   })
-  localStorage.setItem(TOKEN_KEY, payload.token)
+  saveAccessToken(payload.token)
   return payload.user
 }
 

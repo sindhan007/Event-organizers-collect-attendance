@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { clearAccessToken, getCurrentUser, login, register } from '../lib/api.js'
+import { API_URL, clearAccessToken, getCurrentUser, login, register, saveAccessToken } from '../lib/api.js'
 
 export function AuthPanel() {
   const [user, setUser] = useState(null)
@@ -10,6 +10,11 @@ export function AuthPanel() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
+    const googleToken = new URLSearchParams(window.location.search).get('google_token')
+    if (googleToken) {
+      saveAccessToken(googleToken)
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
     if (localStorage.getItem('gatherwell_access_token')) {
       getCurrentUser().then(setUser).catch(clearAccessToken)
     }
@@ -52,6 +57,7 @@ export function AuthPanel() {
         <input aria-label="Password" autoComplete={isRegistering ? 'new-password' : 'current-password'} minLength="8" onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="Password" required type="password" value={form.password} />
         {error && <span className="auth-error" role="alert">{error}</span>}
         <button className="auth-submit" disabled={submitting} type="submit">{submitting ? 'Working...' : isRegistering ? 'Create account' : 'Sign in'}</button>
+        {!isRegistering && <button className="google-button" onClick={() => { window.location.href = `${API_URL}/api/auth/google` }} type="button"><span>G</span> Continue with Google</button>}
         <button className="auth-switch" onClick={() => { setError(''); setIsRegistering((value) => !value) }} type="button">{isRegistering ? 'Already have an account?' : 'Create an account'}</button>
       </form>}
     </div>

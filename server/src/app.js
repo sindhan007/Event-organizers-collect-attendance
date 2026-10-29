@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 import { Attendee, Event, Feedback, User } from '../models/index.js'
 import { createAuthToken, publicUser, requireAuth } from './auth.js'
+import { exchangeGoogleCode, getGoogleAuthorizationUrl, isGoogleAuthConfigured } from './googleAuth.js'
 
 export const app = express()
 
@@ -17,6 +18,34 @@ function pickFields(source, fields) {
 
 app.get('/health', (_request, response) => {
   response.json({ status: 'ok', service: 'gatherwell-api' })
+})
+
+app.get('/api/auth/google', (_request, response) => {
+  const authorizationUrl = getGoogleAuthorizationUrl()
+  if (!authorizationUrl) return response.status(503).json({ message: 'Google authentication is not configured' })
+  response.redirect(authorizationUrl)
+})
+
+app.get('/api/auth/google/callback', async (request, response) => {
+  if (!isGoogleAuthConfigured()) return response.status(503).json({ message: 'Google authentication is not configured' })
+  try {
+    const profile = await exchangeGoogleCode(request.query.code)
+    if (!profile?.sub || !profile.email) return response.status(400).json({ message: 'Google profile is missing required fields' })
+
+    const user = await User.findOneAndUpdate(
+      { providerId: profile.sub },
+      {
+        $set: { email: profile.email, displayName: profile.name || profile.email, authProvider: 'google' },
+        $setOnInsert: { username: `google_${profile.sub.slice(0, 20)}`, providerId: profile.sub },
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true },
+    )
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+    response.redirect(`${clientUrl}?google_token=${encodeURIComponent(createAuthToken(user))}`)
+  } catch (error) {
+    console.error('Google authentication failed', error)
+    response.status(401).json({ message: 'Google authentication failed' })
+  }
 })
 
 app.post('/api/auth/register', async (request, response, next) => {
