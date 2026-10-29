@@ -1,0 +1,4 @@
+meta { name: Upload event CSV; type: http; seq: 13 }
+post { url: {{baseUrl}}/api/events/{{eventId}}/upload; body: multipart; auth: bearer }
+auth:bearer { token: {{token}} }
+body:multipart { file: @./sample-attendance.csv }

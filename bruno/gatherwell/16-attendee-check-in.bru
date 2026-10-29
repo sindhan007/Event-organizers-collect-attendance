@@ -1,0 +1,3 @@
+meta { name: Check in attendee; type: http; seq: 16 }
+post { url: {{baseUrl}}/api/events/{{eventId}}/check-in; body: json; auth: none }
+body:json { "attendeeId": "{{attendeeId}}" }

@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "Gatherwell API",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}
