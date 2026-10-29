@@ -20,4 +20,14 @@ const attendeeSchema = new mongoose.Schema(
 attendeeSchema.index({ eventId: 1, email: 1 }, { unique: true })
 attendeeSchema.index({ eventId: 1, checkedInAt: 1 })
 
+attendeeSchema.virtual('feedback', {
+  ref: 'Feedback',
+  localField: '_id',
+  foreignField: 'attendeeId',
+  justOne: true,
+})
+
+attendeeSchema.set('toJSON', { virtuals: true })
+attendeeSchema.set('toObject', { virtuals: true })
+
 export default mongoose.models.Attendee || mongoose.model('Attendee', attendeeSchema)

@@ -45,4 +45,19 @@ const eventSchema = new mongoose.Schema(
 
 eventSchema.index({ ownerId: 1, startsAt: -1 })
 
+eventSchema.virtual('attendees', {
+  ref: 'Attendee',
+  localField: '_id',
+  foreignField: 'eventId',
+})
+
+eventSchema.virtual('feedback', {
+  ref: 'Feedback',
+  localField: '_id',
+  foreignField: 'eventId',
+})
+
+eventSchema.set('toJSON', { virtuals: true })
+eventSchema.set('toObject', { virtuals: true })
+
 export default mongoose.models.Event || mongoose.model('Event', eventSchema)

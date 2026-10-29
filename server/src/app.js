@@ -38,7 +38,10 @@ app.post('/api/events', async (request, response, next) => {
 
 app.get('/api/events/:eventId', async (request, response, next) => {
   try {
-    const event = await Event.findById(request.params.eventId).lean()
+    const event = await Event.findById(request.params.eventId)
+      .populate('attendees')
+      .populate('feedback')
+      .lean({ virtuals: true })
     if (!event) return response.status(404).json({ message: 'Event not found' })
     response.json(event)
   } catch (error) {
