@@ -8,8 +8,10 @@
     "start": "node src/server.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.1.5"
   }
 }

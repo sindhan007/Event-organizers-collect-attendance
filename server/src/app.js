@@ -1,6 +1,8 @@
 import express from 'express'
+import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
-import { Attendee, Event, Feedback } from '../models/index.js'
+import { Attendee, Event, Feedback, User } from '../models/index.js'
+import { createAuthToken, publicUser, requireAuth } from './auth.js'
 
 export const app = express()
 
@@ -15,6 +17,44 @@ function pickFields(source, fields) {
 
 app.get('/health', (_request, response) => {
   response.json({ status: 'ok', service: 'gatherwell-api' })
+})
+
+app.post('/api/auth/register', async (request, response, next) => {
+  try {
+    const { username, password, displayName } = request.body
+    if (!username || !password || !displayName) {
+      return response.status(400).json({ message: 'username, password, and displayName are required' })
+    }
+    if (password.length < 8) return response.status(400).json({ message: 'Password must be at least 8 characters' })
+
+    const passwordHash = await bcrypt.hash(password, 12)
+    const user = await User.create({ username, displayName, passwordHash })
+    response.status(201).json({ user: publicUser(user), token: createAuthToken(user) })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.post('/api/auth/login', async (request, response, next) => {
+  try {
+    const { username, password } = request.body
+    const user = await User.findOne({ username: username?.toLowerCase() }).select('+passwordHash')
+    const passwordMatches = user && await bcrypt.compare(password || '', user.passwordHash)
+    if (!passwordMatches) return response.status(401).json({ message: 'Invalid username or password' })
+    response.json({ user: publicUser(user), token: createAuthToken(user) })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/auth/me', requireAuth, async (request, response, next) => {
+  try {
+    const user = await User.findById(request.user.sub).lean()
+    if (!user) return response.status(404).json({ message: 'User not found' })
+    response.json({ user: publicUser(user) })
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.get('/api/events', async (request, response, next) => {
