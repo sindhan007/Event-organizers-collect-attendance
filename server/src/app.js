@@ -107,6 +107,22 @@ app.get('/api/events/:eventId/analytics', async (request, response, next) => {
   }
 })
 
+app.post('/api/events/:eventId/check-in', async (request, response, next) => {
+  try {
+    const { attendeeId } = request.body
+    const attendee = await Attendee.findOne({ _id: attendeeId, eventId: request.params.eventId })
+    if (!attendee) return response.status(404).json({ message: 'Attendee not found for this event' })
+    if (attendee.checkedInAt) return response.json(attendee)
+
+    attendee.checkedInAt = new Date()
+    await attendee.save()
+    await Event.findByIdAndUpdate(request.params.eventId, { $inc: { attendanceCount: 1 } })
+    response.json(attendee)
+  } catch (error) {
+    next(error)
+  }
+})
+
 app.post('/api/events/:eventId/attendees', async (request, response, next) => {
   try {
     const attendee = await Attendee.create({ ...request.body, eventId: request.params.eventId })
