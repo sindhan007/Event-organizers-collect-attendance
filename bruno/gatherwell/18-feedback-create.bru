@@ -1,0 +1,3 @@
+meta { name: Submit feedback; type: http; seq: 18 }
+post { url: {{baseUrl}}/api/events/{{eventId}}/feedback; body: json; auth: none }
+body:json { "attendeeId": "{{attendeeId}}", "rating": 5, "comment": "Very useful sessions", "returnIntent": true }

@@ -1,0 +1,2 @@
+email,name,checkedIn,rating,comment,returnIntent
+attendee@example.com,Demo Attendee,true,5,Very useful,true

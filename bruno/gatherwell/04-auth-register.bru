@@ -1,0 +1,3 @@
+meta { name: Register; type: http; seq: 4 }
+post { url: {{baseUrl}}/api/auth/register; body: json; auth: none }
+body:json { "username": "demo.organizer", "displayName": "Demo Organizer", "password": "replace-with-password" }

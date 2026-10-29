@@ -1,0 +1,3 @@
+meta { name: Update event; type: http; seq: 14 }
+put { url: {{baseUrl}}/api/events/{{eventId}}; body: json; auth: none }
+body:json { "title": "Product Forum Updated", "venue": "Main Hall", "status": "scheduled" }

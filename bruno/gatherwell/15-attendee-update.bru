@@ -1,0 +1,3 @@
+meta { name: Update attendee; type: http; seq: 15 }
+put { url: {{baseUrl}}/api/events/{{eventId}}/attendees/{{attendeeId}}; body: json; auth: none }
+body:json { "name": "Updated Attendee", "organization": "Gatherwell Labs", "registrationStatus": "registered" }
