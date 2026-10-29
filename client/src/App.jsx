@@ -123,6 +123,57 @@ function RecentEvents({ onEvents }) {
   )
 }
 
+const initialEvents = [
+  { id: 'product-forum', title: 'Product Forum', type: 'Customer education', date: 'Sep 24, 2024', attendance: '78%', feedback: '64%', score: '82', status: 'Strong' },
+  { id: 'community-breakfast', title: 'Community Breakfast', type: 'Community', date: 'Aug 12, 2024', attendance: '72%', feedback: '43%', score: '71', status: 'Good' },
+  { id: 'partner-roundtable', title: 'Partner Roundtable', type: 'Partners', date: 'Jun 05, 2024', attendance: '91%', feedback: '81%', score: '89', status: 'Strong' },
+]
+
+function EventsView() {
+  const [events, setEvents] = useState(initialEvents)
+  const [editingEvent, setEditingEvent] = useState(null)
+  const [draftTitle, setDraftTitle] = useState('')
+  const [pendingDelete, setPendingDelete] = useState(null)
+
+  function startEditing(event) {
+    setEditingEvent(event)
+    setDraftTitle(event.title)
+    setPendingDelete(null)
+  }
+
+  function saveEvent(event) {
+    const title = draftTitle.trim()
+    if (!title) return
+    setEvents((currentEvents) => currentEvents.map((item) => item.id === event.id ? { ...item, title } : item))
+    setEditingEvent(null)
+  }
+
+  function deleteEvent() {
+    setEvents((currentEvents) => currentEvents.filter((item) => item.id !== pendingDelete.id))
+    setPendingDelete(null)
+  }
+
+  return (
+    <div className="secondary-view events-view">
+      <div className="page-intro"><div><span className="eyebrow">Event library</span><h1>Every event has a next move.</h1><p>Update event details or remove an event from your planning workspace.</p></div><button className="primary-button" type="button">+ Add event</button></div>
+      {pendingDelete && <div className="delete-confirmation" role="alert"><span>Delete <strong>{pendingDelete.title}</strong>? This cannot be undone.</span><div><button className="quiet-button" onClick={() => setPendingDelete(null)} type="button">Cancel</button><button className="danger-button" onClick={deleteEvent} type="button">Delete event</button></div></div>}
+      <div className="panel event-library">
+        <div className="panel-heading"><div><h2>All events</h2><p>{events.length} events in your workspace</p></div><span className="tag success">Synced</span></div>
+        <div className="event-table" role="table" aria-label="Event library">
+          <div className="event-table-row event-table-header" role="row"><span>Event</span><span>Date</span><span>Attendance</span><span>Feedback</span><span>Score</span><span>Actions</span></div>
+          {events.map((event) => (
+            <div className="event-table-row" key={event.id} role="row">
+              {editingEvent?.id === event.id ? <div className="inline-edit"><label htmlFor={`event-title-${event.id}`}>Event title</label><input id={`event-title-${event.id}`} value={draftTitle} onChange={(change) => setDraftTitle(change.target.value)} /></div> : <div><strong>{event.title}</strong><small>{event.type}</small></div>}
+              <span>{event.date}</span><span>{event.attendance}</span><span>{event.feedback}</span><span><span className="tag success">{event.score} · {event.status}</span></span>
+              <div className="row-actions">{editingEvent?.id === event.id ? <><button className="quiet-button" onClick={() => setEditingEvent(null)} type="button">Cancel</button><button className="save-button" onClick={() => saveEvent(event)} type="button">Save</button></> : <><button className="icon-button" aria-label={`Edit ${event.title}`} onClick={() => startEditing(event)} type="button">Edit</button><button className="icon-button danger-text" aria-label={`Delete ${event.title}`} onClick={() => setPendingDelete(event)} type="button">Delete</button></>}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Overview({ onNavigate }) {
   return (
     <>
@@ -151,7 +202,7 @@ function App() {
       <Sidebar activeView={activeView} onNavigate={setActiveView} />
       <main className="main-content">
         <header className="topbar"><span>Workspace / Event intelligence</span><div className="profile"><span>Alex Morgan</span><b>AM</b></div></header>
-        {activeView === 'overview' ? <Overview onNavigate={setActiveView} /> : <SecondaryView view={activeView} />}
+        {activeView === 'overview' ? <Overview onNavigate={setActiveView} /> : activeView === 'events' ? <EventsView /> : <SecondaryView view={activeView} />}
       </main>
     </div>
   )
