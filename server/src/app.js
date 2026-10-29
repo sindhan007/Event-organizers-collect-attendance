@@ -1,4 +1,5 @@
 import express from 'express'
+import mongoose from 'mongoose'
 import { Attendee, Event, Feedback } from '../models/index.js'
 
 export const app = express()
@@ -33,6 +34,74 @@ app.get('/api/events/:eventId', async (request, response, next) => {
     const event = await Event.findById(request.params.eventId).lean()
     if (!event) return response.status(404).json({ message: 'Event not found' })
     response.json(event)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/events/:eventId/attendees', async (request, response, next) => {
+  try {
+    const event = await Event.exists({ _id: request.params.eventId })
+    if (!event) return response.status(404).json({ message: 'Event not found' })
+
+    const attendees = await Attendee.find({ eventId: request.params.eventId })
+      .sort({ createdAt: -1 })
+      .lean()
+    response.json(attendees)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/events/:eventId/feedback', async (request, response, next) => {
+  try {
+    const event = await Event.exists({ _id: request.params.eventId })
+    if (!event) return response.status(404).json({ message: 'Event not found' })
+
+    const feedback = await Feedback.find({ eventId: request.params.eventId })
+      .sort({ submittedAt: -1 })
+      .populate('attendeeId', 'name organization')
+      .lean()
+    response.json(feedback)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/events/:eventId/analytics', async (request, response, next) => {
+  try {
+    const [event, attendeeCount, attendedCount, feedbackCount, feedbackSummary] = await Promise.all([
+      Event.findById(request.params.eventId).lean(),
+      Attendee.countDocuments({ eventId: request.params.eventId }),
+      Attendee.countDocuments({ eventId: request.params.eventId, checkedInAt: { $ne: null } }),
+      Feedback.countDocuments({ eventId: request.params.eventId }),
+      Feedback.aggregate([
+        { $match: { eventId: new mongoose.Types.ObjectId(request.params.eventId) } },
+        {
+          $group: {
+            _id: null,
+            averageRating: { $avg: '$rating' },
+            positiveCount: { $sum: { $cond: [{ $eq: ['$sentiment', 'positive'] }, 1, 0] } },
+            returnIntentCount: { $sum: { $cond: ['$returnIntent', 1, 0] } },
+          },
+        },
+      ]),
+    ])
+
+    if (!event) return response.status(404).json({ message: 'Event not found' })
+
+    const summary = feedbackSummary[0] || { averageRating: 0, positiveCount: 0, returnIntentCount: 0 }
+    response.json({
+      eventId: event._id,
+      registrationCount: attendeeCount,
+      attendanceCount: attendedCount,
+      feedbackCount,
+      attendanceRate: attendeeCount ? Math.round((attendedCount / attendeeCount) * 100) : 0,
+      feedbackRate: attendeeCount ? Math.round((feedbackCount / attendeeCount) * 100) : 0,
+      averageRating: Number((summary.averageRating || 0).toFixed(2)),
+      positiveSentimentRate: feedbackCount ? Math.round((summary.positiveCount / feedbackCount) * 100) : 0,
+      returnIntentRate: feedbackCount ? Math.round((summary.returnIntentCount / feedbackCount) * 100) : 0,
+    })
   } catch (error) {
     next(error)
   }
