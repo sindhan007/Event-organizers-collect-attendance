@@ -1,0 +1,11 @@
+{
+  "name": "gatherwell-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-models": "node --input-type=module -e \"await import('./models/index.js'); console.log('Mongoose models loaded')\""
+  },
+  "dependencies": {
+    "mongoose": "^9.1.5"
+  }
+}
