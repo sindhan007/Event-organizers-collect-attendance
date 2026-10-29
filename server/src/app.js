@@ -1,11 +1,26 @@
 import express from 'express'
 import bcrypt from 'bcryptjs'
+import { parse } from 'csv-parse/sync'
 import mongoose from 'mongoose'
+import multer from 'multer'
 import { Attendee, Event, Feedback, User } from '../models/index.js'
 import { createAuthToken, publicUser, requireAuth } from './auth.js'
 import { exchangeGoogleCode, getGoogleAuthorizationUrl, isGoogleAuthConfigured } from './googleAuth.js'
 
 export const app = express()
+const uploadCsv = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_request, file, callback) => {
+    const isCsv = file.mimetype === 'text/csv' || file.originalname.toLowerCase().endsWith('.csv')
+    if (!isCsv) {
+      const error = new Error('Only CSV files are supported')
+      error.status = 415
+      return callback(error)
+    }
+    callback(null, true)
+  },
+})
 
 app.use(express.json())
 
@@ -186,6 +201,60 @@ app.get('/api/events/:eventId/analytics', async (request, response, next) => {
   }
 })
 
+app.post('/api/events/:eventId/upload', requireAuth, uploadCsv.single('file'), async (request, response, next) => {
+  try {
+    if (!request.file) return response.status(400).json({ message: 'A CSV file is required' })
+    const event = await Event.findById(request.params.eventId)
+    if (!event) return response.status(404).json({ message: 'Event not found' })
+
+    const rows = parse(request.file.buffer, { columns: true, skip_empty_lines: true, trim: true })
+    const requiredColumns = ['email', 'name']
+    const missingColumn = requiredColumns.find((column) => !Object.hasOwn(rows[0] || {}, column))
+    if (missingColumn) return response.status(400).json({ message: `CSV column required: ${missingColumn}` })
+
+    let attendeeCount = 0
+    let feedbackCount = 0
+    for (const row of rows) {
+      const attendee = await Attendee.findOneAndUpdate(
+        { eventId: event._id, email: row.email.toLowerCase() },
+        {
+          $set: {
+            name: row.name,
+            checkedInAt: row.checkedIn?.toLowerCase() === 'true' ? new Date() : null,
+          },
+          $setOnInsert: { eventId: event._id, email: row.email.toLowerCase() },
+        },
+        { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+      )
+      attendeeCount += 1
+
+      if (row.rating) {
+        const rating = Number(row.rating)
+        if (rating < 1 || rating > 5) return response.status(400).json({ message: 'Rating must be between 1 and 5' })
+        await Feedback.findOneAndUpdate(
+          { attendeeId: attendee._id },
+          {
+            $set: {
+              eventId: event._id,
+              rating,
+              comment: row.comment || '',
+              sentiment: rating >= 4 ? 'positive' : rating <= 2 ? 'negative' : 'neutral',
+              returnIntent: row.returnIntent?.toLowerCase() === 'true',
+            },
+            $setOnInsert: { attendeeId: attendee._id },
+          },
+          { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+        )
+        feedbackCount += 1
+      }
+    }
+
+    response.status(201).json({ message: 'CSV imported successfully', rows: rows.length, attendeeCount, feedbackCount })
+  } catch (error) {
+    next(error)
+  }
+})
+
 app.put('/api/events/:eventId', async (request, response, next) => {
   try {
     const updates = pickFields(request.body, [
@@ -262,6 +331,8 @@ app.post('/api/events/:eventId/feedback', async (request, response, next) => {
 })
 
 app.use((error, _request, response, _next) => {
+  if (error.status) return response.status(error.status).json({ message: error.message })
+  if (error.code === 'LIMIT_FILE_SIZE') return response.status(413).json({ message: 'File must be 5 MB or smaller' })
   if (error.name === 'ValidationError') {
     return response.status(400).json({ message: 'Validation failed', fields: error.errors })
   }
