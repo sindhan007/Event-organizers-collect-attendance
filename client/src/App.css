@@ -12,7 +12,16 @@
 .main-content { padding: 30px 42px 60px; max-width: 1420px; width: 100%; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; color: #6b7771; font-size: 13px; }
 .profile { display: flex; gap: 12px; align-items: center; color: #14231f; font-weight: 600; }
-.profile b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #f0bb83; color: #563719; }
+.profile-avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: #f0bb83; color: #563719; font-weight: 700; cursor: pointer; }
+.auth-control { position: relative; }
+.sign-in-button { border: 1px solid #237b55; border-radius: 7px; padding: 9px 13px; background: #fff; color: #237b55; font-size: 12px; font-weight: 700; cursor: pointer; }
+.auth-popover { position: absolute; z-index: 3; right: 0; top: 44px; width: 250px; display: grid; gap: 9px; padding: 16px; border: 1px solid #dfe7df; border-radius: 10px; background: #fff; box-shadow: 0 16px 35px rgba(20, 35, 31, .14); }
+.auth-popover strong { font-family: var(--heading); font-size: 15px; margin-bottom: 4px; }
+.auth-popover input { border: 1px solid #dfe7df; border-radius: 6px; padding: 9px; color: #14231f; font-size: 12px; }
+.auth-submit { border: 0; border-radius: 6px; padding: 9px; background: #237b55; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+.auth-submit:disabled { cursor: wait; opacity: .65; }
+.auth-switch { border: 0; background: transparent; color: #237b55; font-size: 11px; cursor: pointer; }
+.auth-error { color: #b24f3d; font-size: 11px; }
 .eyebrow { color: #237b55; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 700; display: block; margin-bottom: 9px; }
 h1, h2 { font-family: var(--heading); letter-spacing: -.03em; color: #14231f; }
 h1 { font-size: 34px; line-height: 1.1; max-width: 650px; margin: 0; }
