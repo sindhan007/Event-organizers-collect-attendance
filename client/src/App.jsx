@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AuthPanel } from './components/AuthPanel.jsx'
-import { uploadEventData } from './lib/api.js'
+import { autocompleteText, uploadEventData } from './lib/api.js'
 import './App.css'
 
 const navigation = [
@@ -126,9 +126,9 @@ function RecentEvents({ onEvents }) {
 }
 
 const initialEvents = [
-  { id: 'product-forum', title: 'Product Forum', type: 'Customer education', date: 'Sep 24, 2024', attendance: '78%', feedback: '64%', score: '82', status: 'Strong' },
-  { id: 'community-breakfast', title: 'Community Breakfast', type: 'Community', date: 'Aug 12, 2024', attendance: '72%', feedback: '43%', score: '71', status: 'Good' },
-  { id: 'partner-roundtable', title: 'Partner Roundtable', type: 'Partners', date: 'Jun 05, 2024', attendance: '91%', feedback: '81%', score: '89', status: 'Strong' },
+  { id: 'product-forum', title: 'Product Forum', description: 'Practical sessions for teams building better customer experiences.', type: 'Customer education', date: 'Sep 24, 2024', attendance: '78%', feedback: '64%', score: '82', status: 'Strong' },
+  { id: 'community-breakfast', title: 'Community Breakfast', description: 'A focused morning for community leaders to exchange ideas.', type: 'Community', date: 'Aug 12, 2024', attendance: '72%', feedback: '43%', score: '71', status: 'Good' },
+  { id: 'partner-roundtable', title: 'Partner Roundtable', description: 'A working session for partners sharing practical growth lessons.', type: 'Partners', date: 'Jun 05, 2024', attendance: '91%', feedback: '81%', score: '89', status: 'Strong' },
 ]
 
 function EventsView() {
@@ -136,6 +136,9 @@ function EventsView() {
   const [editingEvent, setEditingEvent] = useState(null)
   const [draftTitle, setDraftTitle] = useState('')
   const [pendingDelete, setPendingDelete] = useState(null)
+  const [draftDescription, setDraftDescription] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
   const [uploadFile, setUploadFile] = useState(null)
   const [uploadMessage, setUploadMessage] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -143,14 +146,29 @@ function EventsView() {
   function startEditing(event) {
     setEditingEvent(event)
     setDraftTitle(event.title)
+    setDraftDescription(event.description)
+    setAiError('')
     setPendingDelete(null)
   }
 
   function saveEvent(event) {
     const title = draftTitle.trim()
     if (!title) return
-    setEvents((currentEvents) => currentEvents.map((item) => item.id === event.id ? { ...item, title } : item))
+    setEvents((currentEvents) => currentEvents.map((item) => item.id === event.id ? { ...item, title, description: draftDescription.trim() } : item))
     setEditingEvent(null)
+  }
+
+  async function suggestDescription() {
+    setAiLoading(true)
+    setAiError('')
+    try {
+      const result = await autocompleteText('description', `${draftTitle}. ${draftDescription}`)
+      setDraftDescription(result.suggestion)
+    } catch (error) {
+      setAiError(error.message)
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   function deleteEvent() {
@@ -185,7 +203,7 @@ function EventsView() {
           <div className="event-table-row event-table-header" role="row"><span>Event</span><span>Date</span><span>Attendance</span><span>Feedback</span><span>Score</span><span>Actions</span></div>
           {events.map((event) => (
             <div className="event-table-row" key={event.id} role="row">
-              {editingEvent?.id === event.id ? <div className="inline-edit"><label htmlFor={`event-title-${event.id}`}>Event title</label><input id={`event-title-${event.id}`} value={draftTitle} onChange={(change) => setDraftTitle(change.target.value)} /></div> : <div><strong>{event.title}</strong><small>{event.type}</small></div>}
+              {editingEvent?.id === event.id ? <div className="inline-edit"><label htmlFor={`event-title-${event.id}`}>Event title</label><input id={`event-title-${event.id}`} value={draftTitle} onChange={(change) => setDraftTitle(change.target.value)} /><label htmlFor={`event-description-${event.id}`}>Description</label><textarea id={`event-description-${event.id}`} value={draftDescription} onChange={(change) => setDraftDescription(change.target.value)} /><button className="ai-button" disabled={aiLoading} onClick={suggestDescription} type="button">{aiLoading ? 'Thinking...' : '✦ Suggest with AI'}</button>{aiError && <span className="ai-error" role="alert">{aiError}</span>}</div> : <div><strong>{event.title}</strong><small>{event.type}</small></div>}
               <span>{event.date}</span><span>{event.attendance}</span><span>{event.feedback}</span><span><span className="tag success">{event.score} · {event.status}</span></span>
               <div className="row-actions">{editingEvent?.id === event.id ? <><button className="quiet-button" onClick={() => setEditingEvent(null)} type="button">Cancel</button><button className="save-button" onClick={() => saveEvent(event)} type="button">Save</button></> : <><button className="icon-button" aria-label={`Edit ${event.title}`} onClick={() => startEditing(event)} type="button">Edit</button><button className="icon-button danger-text" aria-label={`Delete ${event.title}`} onClick={() => setPendingDelete(event)} type="button">Delete</button></>}</div>
             </div>
