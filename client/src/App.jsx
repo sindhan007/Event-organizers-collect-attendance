@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AuthPanel } from './components/AuthPanel.jsx'
 import './App.css'
 
 const navigation = [
@@ -201,7 +202,7 @@ function App() {
     <div className="app-shell">
       <Sidebar activeView={activeView} onNavigate={setActiveView} />
       <main className="main-content">
-        <header className="topbar"><span>Workspace / Event intelligence</span><div className="profile"><span>Alex Morgan</span><b>AM</b></div></header>
+        <header className="topbar"><span>Workspace / Event intelligence</span><AuthPanel /></header>
         {activeView === 'overview' ? <Overview onNavigate={setActiveView} /> : activeView === 'events' ? <EventsView /> : <SecondaryView view={activeView} />}
       </main>
     </div>
