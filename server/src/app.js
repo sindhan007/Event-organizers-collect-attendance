@@ -6,6 +6,13 @@ export const app = express()
 
 app.use(express.json())
 
+function pickFields(source, fields) {
+  return fields.reduce((result, field) => {
+    if (source[field] !== undefined) result[field] = source[field]
+    return result
+  }, {})
+}
+
 app.get('/health', (_request, response) => {
   response.json({ status: 'ok', service: 'gatherwell-api' })
 })
@@ -102,6 +109,44 @@ app.get('/api/events/:eventId/analytics', async (request, response, next) => {
       positiveSentimentRate: feedbackCount ? Math.round((summary.positiveCount / feedbackCount) * 100) : 0,
       returnIntentRate: feedbackCount ? Math.round((summary.returnIntentCount / feedbackCount) * 100) : 0,
     })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.put('/api/events/:eventId', async (request, response, next) => {
+  try {
+    const updates = pickFields(request.body, [
+      'title',
+      'description',
+      'eventType',
+      'startsAt',
+      'endsAt',
+      'venue',
+      'capacity',
+      'status',
+    ])
+    const event = await Event.findByIdAndUpdate(request.params.eventId, updates, {
+      new: true,
+      runValidators: true,
+    }).lean()
+    if (!event) return response.status(404).json({ message: 'Event not found' })
+    response.json(event)
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.put('/api/events/:eventId/attendees/:attendeeId', async (request, response, next) => {
+  try {
+    const updates = pickFields(request.body, ['name', 'organization', 'registrationStatus'])
+    const attendee = await Attendee.findOneAndUpdate(
+      { _id: request.params.attendeeId, eventId: request.params.eventId },
+      updates,
+      { new: true, runValidators: true },
+    ).lean()
+    if (!attendee) return response.status(404).json({ message: 'Attendee not found for this event' })
+    response.json(attendee)
   } catch (error) {
     next(error)
   }
