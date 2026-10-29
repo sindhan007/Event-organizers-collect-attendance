@@ -4,7 +4,10 @@ Gatherwell is a mock UX for an event analytics platform that helps organizers co
 
 ## Mock UX Design
 
-Live Mock UX:
+Public Mock UX preview:
+https://htmlpreview.github.io/?https://raw.githubusercontent.com/sindhan007/Event-organizers-collect-attendance/feature/mock-ux-design/mock-ux/index.html
+
+GitHub Pages destination:
 https://sindhan007.github.io/Event-organizers-collect-attendance/mock-ux/
 
 Source prototype:
